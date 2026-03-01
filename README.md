@@ -10,18 +10,19 @@ This project is a **static recompilation** of the Xbox 360 XBLA binary — trans
 
 ---
 
-## Current Status: Binary Analysis Complete
+## Current Status: Code Generation Complete
 
 | Phase | Status |
 |-------|--------|
 | STFS Container Extraction | Done |
 | XEX2 Decryption + LZX Decompression | Done |
-| PE Section Mapping | Done |
+| PE Section Mapping | Done (16 sections) |
 | ABI Helper Location | Done (8/8 found) |
 | Switch Table Extraction | Done (76 tables) |
 | Kernel Import Analysis | Done (412 imports) |
 | Engine Architecture Analysis | Done |
-| XenonRecomp Code Generation | Next |
+| XenonRecomp Code Generation | **Done** — 11,824 functions, 49 files, 45 MB C++ |
+| Function Boundary Fixes | In progress (switch table errors to resolve) |
 | Runtime Implementation | Pending |
 | Playable Build | The dream |
 
