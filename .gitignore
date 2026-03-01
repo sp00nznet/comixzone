@@ -1,0 +1,33 @@
+# Game files (not redistributable)
+game_files/
+extracted/
+*.rar
+*.zip
+*.xex
+*.bin
+pe_image.bin
+
+# Build artifacts
+ppc/
+build/
+out/
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+
+# OS
+Thumbs.db
+.DS_Store

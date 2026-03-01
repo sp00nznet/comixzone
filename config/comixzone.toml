@@ -1,0 +1,61 @@
+# Comix Zone XBLA - Static Recompilation Config
+# XEX2 → PowerPC → x86-64 via XenonRecomp
+#
+# Binary: ComixZone-Standard-X360-Final.exe
+# Built:  March 27, 2009 15:35:37
+# XDK:    2.0.7978.3 (November 2008)
+# Dev:    Backbone Entertainment / Sega
+# Engine: "SegaVintage" XBLA Classic Framework
+#         (Genesis 68K + Z80 + YM2612 + VDP emulator wrapper)
+
+[main]
+file_path = "../game_files/default.xex"
+out_directory_path = "../ppc"
+switch_table_file_path = "switch_tables.toml"
+
+# PE Memory Layout (16 sections):
+#   .rdata     0x82000600  - Read-only data (strings, constants)
+#   .pdata     0x82089200  - Exception tables
+#   .text      0x820A0000  - Main code (1.9MB)
+#   .embsec_*  0x82273200  - 9 embedded code sections (68K emu, Z80 emu, etc.)
+#   .data      0x822D0000  - Writable data (10.7MB incl. BSS)
+#   .XBMOVIE   0x82D03C00  - WMV video support
+#   .idata     0x82D10000  - Import tables
+#   .XBLD      0x82D20000  - Build metadata
+#   .reloc     0x82D20200  - Relocations
+
+# Entry point
+# entry_point = 0x8212CD98
+
+# Image layout
+# image_base = 0x82000000
+# image_size = 0xD40000 (13,893,632 bytes)
+# code_base  = 0x820A0000
+# code_end   = 0x82311CEC (includes .embsec_ sections)
+
+# === ABI Helper Addresses ===
+# Found by find_abi_addrs.py scanning PE image
+savegprlr_14_address = 0x82310F00
+restgprlr_14_address = 0x82310F50
+savefpr_14_address = 0x82311720
+restfpr_14_address = 0x8231176C
+savevmx_14_address = 0x823117C0
+restvmx_14_address = 0x82311A58
+savevmx_64_address = 0x82311854
+restvmx_64_address = 0x82311AEC
+# setjmp: NOT FOUND (game does not use setjmp/longjmp)
+# longjmp: NOT FOUND
+
+# === Manual Function Boundaries ===
+# Add entries here as analysis reveals misdetected function boundaries
+# functions = [
+#     { address = 0x820XXXXX, size = 0xYY },
+# ]
+
+[optimizations]
+# Start conservative - enable after basic compilation works
+skip_lr = false
+skip_msr = false
+ctr_as_local = false
+cr_as_local = false
+non_volatile_as_local = false
