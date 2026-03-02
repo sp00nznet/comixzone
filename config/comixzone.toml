@@ -47,10 +47,34 @@ restvmx_64_address = 0x82311AEC
 # longjmp: NOT FOUND
 
 # === Manual Function Boundaries ===
-# Add entries here as analysis reveals misdetected function boundaries
-# functions = [
-#     { address = 0x820XXXXX, size = 0xYY },
-# ]
+# 33 functions with switch table label boundary errors, fixed via .pdata
+# analysis and PPC code scanning (tools/analyze_pdata.py).
+# Each entry extends the auto-detected function to cover all switch labels.
+functions = [
+    # .text section - individual functions with out-of-range switch labels
+    { address = 0x820CCB20, size = 0x0088 },  # switch at 0x820CCB54 (12 labels)
+    { address = 0x820D4148, size = 0x0454 },  # switch at 0x820D418C (512 labels)
+    { address = 0x820DDD60, size = 0x04F8 },  # switch at 0x820DDE34 (512 labels)
+    { address = 0x822543E8, size = 0x0224 },  # switch at 0x82254420 (2 labels)
+    { address = 0x82255038, size = 0x0060 },  # switch at 0x82255064 (33 labels)
+    { address = 0x82258408, size = 0x01C4 },  # switch at 0x82258448 (12 labels)
+    { address = 0x822585D0, size = 0x00D4 },  # switch at 0x822585FC (16 labels)
+    { address = 0x8225B7B8, size = 0x05AC },  # switch at 0x8225B85C (512 labels)
+    { address = 0x8225CBA0, size = 0x00C0 },  # switch at 0x8225CBD0 (15 labels)
+    { address = 0x8225DDE8, size = 0x00C0 },  # switch at 0x8225DE18 (15 labels)
+
+    # Genesis 68K emulator dispatcher region (0x82260xxx-0x82261xxx)
+    # 11 switch tables share overlapping label ranges across a ~4KB code block
+    { address = 0x82260588, size = 0x0FE4 },  # switches: 0x82260944..0x82261510
+
+    # Genesis emulator continued (0x82262xxx-0x82264xxx)
+    # Multiple dispatcher functions with cross-referencing switch labels
+    { address = 0x82262098, size = 0x0980 },  # switches: 0x82262634, 0x822627D8, 0x82262960
+    { address = 0x82262A18, size = 0x0A5C },  # switches: 0x82262C8C..0x82263274 (6 tables)
+    { address = 0x82263474, size = 0x0378 },  # switch at 0x82263784 (10 labels)
+    { address = 0x8226393C, size = 0x0408 },  # switch at 0x82263CBC (16 labels)
+    { address = 0x822641B8, size = 0x0118 },  # switch at 0x822641E4 (27 labels)
+]
 
 [optimizations]
 # Start conservative - enable after basic compilation works

@@ -1,0 +1,72 @@
+# Comix Zone XBLA - ReXGlue Codegen Configuration
+# Binary: ComixZone-Standard-X360-Final.exe
+# Built:  March 27, 2009 15:35:37
+# XDK:    2.0.7978.3 (November 2008)
+# Dev:    Backbone Entertainment / Sega
+# Engine: "SegaVintage" XBLA Classic Framework
+#         (Genesis 68K + Z80 + YM2612 + VDP emulator wrapper)
+
+project_name = "comixzone"
+file_path = "game_files/default.xex"
+out_directory_path = "generated"
+
+# Code generation options (conservative for initial pass)
+skip_lr = false
+skip_msr = false
+ctr_as_local = false
+xer_as_local = false
+cr_as_local = false
+reserved_as_local = false
+non_argument_as_local = false
+non_volatile_as_local = false
+generate_exception_handlers = false
+
+[analysis]
+max_jump_extension = 65536
+
+# Manual function overrides for boundary errors
+# 33 switch tables in 16 function regions need extended boundaries.
+# Most (30/33) are in the Genesis 68K/Z80 emulator instruction dispatchers.
+[functions]
+# .text section - individual functions with out-of-range switch labels
+0x820CCB20 = { end = 0x820CCBA8 }  # switch at 0x820CCB54 (12 labels)
+0x820D4148 = { end = 0x820D459C }  # switch at 0x820D418C (512 labels)
+0x820DDD60 = { end = 0x820DE258 }  # switch at 0x820DDE34 (512 labels)
+0x822543E8 = { end = 0x8225460C }  # switch at 0x82254420 (2 labels)
+0x82255038 = { end = 0x82255098 }  # switch at 0x82255064 (33 labels)
+0x82258408 = { end = 0x822585CC }  # switch at 0x82258448 (12 labels)
+0x822585D0 = { end = 0x822586A4 }  # switch at 0x822585FC (16 labels)
+0x8225B7B8 = { end = 0x8225BD64 }  # switch at 0x8225B85C (512 labels)
+0x8225CBA0 = { end = 0x8225CC60 }  # switch at 0x8225CBD0 (15 labels)
+0x8225DDE8 = { end = 0x8225DEA8 }  # switch at 0x8225DE18 (15 labels)
+
+# Genesis 68K emulator dispatcher region (0x82260xxx-0x82261xxx)
+# 11 switch tables share overlapping label ranges across a ~4KB code block
+0x82260588 = { end = 0x8226156C }  # switches: 0x82260944..0x82261510
+
+# Genesis emulator continued (0x82262xxx-0x82264xxx)
+# Heavily interconnected dispatcher block — merged into one large function
+# to handle cross-function conditional branches, bdzf targets, and tail calls
+0x82262098 = { end = 0x82263D44 }  # merged: 0x82262634..0x82263CBC (all dispatcher tables)
+0x822641B8 = { end = 0x822642D4 }  # switch at 0x822641E4 (27 labels) - extended for branch target
+
+# Tail-call targets not found by rexglue's call graph analysis
+0x820D35E0 = { end = 0x820D35E8 }  # li r4,1; b sub_820D35C0
+0x820F9180 = { end = 0x820F918C }  # stw; mr; b sub_820F9130
+0x82137A58 = { end = 0x82137A60 }  # addi r3,r3,8; b sub_82136320
+0x82150A68 = { end = 0x82150A90 }  # conditional stw helper
+
+# Vtable-dispatched functions (only called via indirect calls, missed by call graph)
+# These are SegaVintage engine virtual methods called through function pointers.
+# Without them, the game's main loop silently fails to update state.
+0x820A0608 = {}  # called from 0x820B19C0
+0x820B06B8 = {}  # called from 0x820AC7B4
+0x820C9B18 = {}  # called from 0x820D317C, 0x820F956C
+0x820DE0A8 = {}  # called from 0x820C672C (main loop vtable dispatch - HOT)
+0x820DE0B8 = {}  # called from 0x820C672C (main loop vtable dispatch - HOT)
+0x820DE188 = {}  # called from many callers (0x820CD77C, 0x820DFB24, etc.)
+0x820DE190 = {}  # called from 0x820CD474, 0x820E29BC
+0x820DE1B8 = {}  # called from 0x820CD678
+0x820DE1C8 = {}  # called from 0x820C6C14, 0x820CD73C, etc.
+0x82144348 = {}  # called from indirect dispatch
+0x82153FF8 = {}  # called from indirect dispatch
