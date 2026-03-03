@@ -8,6 +8,8 @@ Then Microsoft delisted it. Now it's trapped on dying hardware with no legal way
 
 ![Comix Zone Start Screen](images/startscreen.png)
 
+![Sega Logo](images/sega.png)
+
 This project is a **static recompilation** of the Xbox 360 XBLA binary — translating the PowerPC machine code directly into native x86-64 C code that runs on modern PCs. No emulation. No interpretation. Direct, compiled, full-speed native code.
 
 ---
