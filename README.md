@@ -6,6 +6,8 @@ Comix Zone was a 1995 Sega Genesis classic where you play as Sketch Turner — a
 
 Then Microsoft delisted it. Now it's trapped on dying hardware with no legal way to purchase it.
 
+![Comix Zone Start Screen](images/startscreen.png)
+
 This project is a **static recompilation** of the Xbox 360 XBLA binary — translating the PowerPC machine code directly into native x86-64 C code that runs on modern PCs. No emulation. No interpretation. Direct, compiled, full-speed native code.
 
 ---
