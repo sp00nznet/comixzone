@@ -28,12 +28,16 @@ extern "C" PPC_FUNC(sub_8212D018) {
     if (mask_ptr)
         PPC_STORE_U32(mask_ptr, 0xFFFFFFFF);  // full license
     ctx.r3.u32 = 0;  // ERROR_SUCCESS
+    REXLOG_INFO("[BOOT] sub_8212D018: content license override — full license granted");
 }
 
 // User sign-in stubs — critical for startup flow.
 // The SegaVintage engine checks sign-in state at the logo screen.
 // Without these, the game hangs waiting for a user to sign in.
-CZ_STUB_RETURN(__imp__XamUserGetSigninState, 1)  // 1 = SignedInLocally
+extern "C" PPC_FUNC(__imp__XamUserGetSigninState) {
+    (void)base;
+    ctx.r3.u64 = 1;  // SignedInLocally
+}
 
 extern "C" PPC_FUNC(__imp__XamUserGetName) {
     // r3 = user index, r4 = buffer, r5 = buffer size
@@ -125,7 +129,7 @@ extern "C" PPC_FUNC(sub_820ECB90) {
 
     // 5. Skip UI-active check (SDK headless mode)
 
-    REXLOG_INFO("[STORAGE] Device selector completed (overlapped_result={}).", internal_low);
+    REXLOG_INFO("[STORAGE] Device selector completed");
 
     // 6. Clear pending flag
     PPC_STORE_U8(obj + 2564, 0);
@@ -147,7 +151,6 @@ extern "C" PPC_FUNC(sub_820ECB90) {
 
     // 9. Read device_id and branch
     uint32_t device_id = PPC_LOAD_U32(STORAGE_DEVICE_ID_ADDR);
-    REXLOG_INFO("[STORAGE] device_id=0x{:08X}", device_id);
 
     if (device_id == 0) {
         // Cancel: set done, call vtable[56]
@@ -158,7 +161,6 @@ extern "C" PPC_FUNC(sub_820ECB90) {
         PPC_CALL_INDIRECT_FUNC(method);
     } else {
         // Success: call vtable[40] for screen transition
-        REXLOG_INFO("[STORAGE] Device selected — calling vtable[40] for transition.");
         uint32_t vtable_ptr = PPC_LOAD_U32(obj);
         uint32_t method = PPC_LOAD_U32(vtable_ptr + 40);
         ctx.r3.u32 = obj;
@@ -282,10 +284,11 @@ extern "C" PPC_FUNC(sub_820F8838) {
     ctx.lr = 0x820F88FC;
     sub_8210CB68(ctx, base);
 
-    // Step 7: SKIP fade overlay vtable[104](1) — hangs in recomp.
-    // On Xbox 360 this triggers a blocking fade-to-black that completes via
-    // GPU interrupt. In the recomp the interrupt path doesn't work, causing
-    // an infinite block. Safe to skip — transitions work without the fade.
+    // Step 7: SKIP fade overlay vtable[104](1).
+    // On Xbox 360 this triggers a blocking fade-to-black animation driven by
+    // GPU interrupts. In the recomp the GPU never fires those interrupts, so
+    // the call blocks forever. Skipping it means instant screen transitions
+    // (no fade effect) but the game progresses normally.
 
     // Step 8: Get navigation state
     ctx.r4.u64 = ctx.r30.u64;
